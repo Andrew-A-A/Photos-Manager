@@ -23,7 +23,7 @@ class ImageGalleryAdapter(private val galleryPhotos: ArrayList<GalleryPhoto>)
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val galleryPhoto = galleryPhotos[position]
         val imageView = holder.photoImageView
-
+        holder.imagePath= galleryPhotos[position].path.toString()
         Picasso.get()
             .load(galleryPhoto.path)
             .fit()
