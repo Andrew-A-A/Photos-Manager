@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Photos Manger</string>
+    <string name="open_camera">open camera</string>
+    <string name="image">image</string>
 </resources>
