@@ -1,4 +1,4 @@
-# Image Gallery App
+# Photos Manager App
 
 This is a simple Android application that allows users to view all the images present in their device in a grid layout structure. Users can also capture new images that would get stored on their device.
 
