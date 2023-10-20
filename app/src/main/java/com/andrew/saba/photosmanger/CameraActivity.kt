@@ -61,9 +61,16 @@ class CameraActivity : AppCompatActivity() {
         // Set up the listeners for take photo and video capture buttons
         binding.imageCaptureButton.setOnClickListener { takePhoto() }
 
-
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case

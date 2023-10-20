@@ -16,9 +16,10 @@ import com.andrew.saba.photosmanger.model.GalleryPhoto
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val imagePaths = ArrayList<String>()
-    private lateinit var imageGalleryAdapter:ImageGalleryAdapter
 
+    private lateinit var imageGalleryAdapter:ImageGalleryAdapter
+    private var permissionGranted=true
+    private var paused=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,11 +32,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if(permissionGranted&&paused)
+        setRecyclerAdapter()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        paused=true
+    }
     private val activityResultLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             // Handle Permission granted/rejected
-            var permissionGranted = true
             permissions.entries.forEach {
                 if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE && !it.value)
                     permissionGranted = false
@@ -45,21 +55,34 @@ class MainActivity : AppCompatActivity() {
                     "Permission request denied",
                     Toast.LENGTH_SHORT).show()
             } else {
-                binding.imagesGridRv.layoutManager= GridLayoutManager(this,3)
-                val projection = arrayOf(MediaStore.Images.Media._ID)
-                val cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null)
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
-                        val path = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id).toString()
-                        imagePaths.add(path)
-                    }
-                    cursor.close()
-                }
-                imageGalleryAdapter= ImageGalleryAdapter(GalleryPhoto.getPhotos(imagePaths))
-                binding.imagesGridRv.adapter=imageGalleryAdapter
+                setRecyclerAdapter()
             }
         }
+
+    private fun setRecyclerAdapter() {
+         val imagePaths = ArrayList<String>()
+        binding.imagesGridRv.layoutManager = GridLayoutManager(this, 3)
+        val projection = arrayOf(MediaStore.Images.Media._ID)
+        val cursor = contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            null,
+            null,
+            null
+        )
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                val path =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                        .toString()
+                imagePaths.add(path)
+            }
+            cursor.close()
+        }
+        imageGalleryAdapter = ImageGalleryAdapter(GalleryPhoto.getPhotos(imagePaths))
+        binding.imagesGridRv.adapter = imageGalleryAdapter
+    }
 
     private fun requestPermissions() {
         activityResultLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
